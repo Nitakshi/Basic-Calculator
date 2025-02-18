@@ -1,8 +1,9 @@
 let input = document.getElementById('inputBox');
 let buttons = document.querySelectorAll('button');
 let string = "";
-let evaluated = false; // Track if last input was '='
-let previousAnswer = ""; // Store last evaluated result
+let evaluated = false;
+let previousAnswer = ""; 
+let isRadians = true;
 
 Array.from(buttons).forEach(button => {
     button.addEventListener('click', (e) => {
@@ -17,15 +18,37 @@ Array.from(buttons).forEach(button => {
         } else if (['+', '-', '*', '/'].includes(value)) {
             evaluateOperator(value);
         } else if (value === 'sin(' || value === 'cos(' || value === 'tan(') {
-            // Append the function to the string
             string += value; 
-            input.value = string; // Update the display
+            input.value = string;
+            evaluated = false;
+        } else if (value === ')') {
+            string += value;
+            input.value = string;
             evaluated = false; // Reset evaluated flag
-        }
-        else if(value == ')' || value == '('){
-            evaluateBrackets(value);
-        } 
-        else {
+        } else if (value === '(') {
+            string += value;
+            input.value = string;
+            evaluated = false; // Reset evaluated flag
+        } else if (value === 'π') {
+            string += 'Math.PI'; // Use Math.PI for accurate value of π
+            input.value = string;
+            evaluated = false;
+        } else if (value === 'RAD') {
+            isRadians = true; // Set mode to radians
+            alert("Switched to Radians");
+        } else if (value === 'DEG') {
+            isRadians = false; // Set mode to degrees
+            alert("Switched to Degrees");
+        }  else if (value === 'nC' || value === 'nC<sup>r</sup>') {
+            // Handle combinations (nCr)
+            let n = prompt("Enter n (total items):");
+            let r = prompt("Enter r (items to choose):");
+            if (n !== null && r !== null) {
+                let result = nCr(parseInt(n), parseInt(r));
+                input.value = result;
+                string = ""; // Clear the string after calculation
+            }
+        } else {
             if (evaluated) {
                 // If a number is entered after '=', start a fresh calculation
                 string = value;
@@ -39,19 +62,16 @@ Array.from(buttons).forEach(button => {
 });
 
 function evaluateExpression() {
-    try { //input is in degrees instead of radians
-        // Replace trigonometric functions with their Math equivalents
+    try {
         let expression = string
-            .replace(/sin\(/g, 'Math.sin(Math.PI / 180 * (')
-            .replace(/cos\(/g, 'Math.cos(Math.PI / 180 * (')
-            .replace(/tan\(/g, 'Math.tan(Math.PI / 180 * (');
+            .replace(/sin\(/g, 'Math.sin(' + (isRadians ? '' : 'Math.PI / 180 * '))
+            .replace(/cos\(/g, 'Math.cos(' + (isRadians ? '' : 'Math.PI / 180 * '))
+            .replace(/tan\(/g, 'Math.tan(' + (isRadians ? '' : 'Math.PI / 180 * '));
 
-        // Evaluate the expression
-        expression += ')';
         string = Function('"use strict";return (' + expression + ')')();
         input.value = string;
-        previousAnswer = string; // Store result for next calculation
-        evaluated = true; // Mark that an expression was evaluated
+        previousAnswer = string; 
+        evaluated = true;
     } catch (error) {
         alert('Error: ' + error.message);
         string = "";
@@ -85,13 +105,14 @@ function evaluateOperator(value) {
     input.value = string;
     evaluated = false;
 }
-function evaluateBrackets(value){
-    if(value == ')'){
-        string += value;
-        input.value = string;
-    }
-    else if(value == '('){
-        string += value;
-        input.value = string;
-    }
+
+function nCr(n, r) {
+    if (r > n) return 0; // nCr is 0 if r > n
+    return factorial(n) / (factorial(r) * factorial(n - r));
+}
+
+function factorial(num) {
+    if (num < 0) return 0; // Factorial of negative number is not defined
+    if (num === 0 || num === 1) return 1;
+    return num * factorial(num - 1);
 }
