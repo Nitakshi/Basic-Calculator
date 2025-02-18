@@ -24,13 +24,13 @@ Array.from(buttons).forEach(button => {
         } else if (value === ')') {
             string += value;
             input.value = string;
-            evaluated = false; // Reset evaluated flag
+            evaluated = false; 
         } else if (value === '(') {
             string += value;
             input.value = string;
-            evaluated = false; // Reset evaluated flag
+            evaluated = false; 
         } else if (value === 'π') {
-            string += 'Math.PI'; // Use Math.PI for accurate value of π
+            string += 'Math.PI';
             input.value = string;
             evaluated = false;
         } else if (value === 'RAD') {
@@ -64,11 +64,11 @@ Array.from(buttons).forEach(button => {
 function evaluateExpression() {
     try {
         let expression = string
-            .replace(/sin\(/g, 'Math.sin(' + (isRadians ? '' : 'Math.PI / 180 * '))
+            .replace(/sin\(/g, 'Math.sin(' + (isRadians ? '' : 'Math.PI / 180 * ')) //Math.sin() -> return answer in radians
             .replace(/cos\(/g, 'Math.cos(' + (isRadians ? '' : 'Math.PI / 180 * '))
-            .replace(/tan\(/g, 'Math.tan(' + (isRadians ? '' : 'Math.PI / 180 * '));
+            .replace(/tan\(/g,'Math.tan(' + (isRadians ? '': 'Math.PI/180 *'));
 
-        string = Function('"use strict";return (' + expression + ')')();
+        string = Function('"use strict";return (' + expression + ')')(); //creates a new function dynamically
         input.value = string;
         previousAnswer = string; 
         evaluated = true;
@@ -116,3 +116,12 @@ function factorial(num) {
     if (num === 0 || num === 1) return 1;
     return num * factorial(num - 1);
 }
+/*
+/.../ → Defines a regular expression.
+sin → Matches the literal string "sin".
+\( → Matches an opening parenthesis "(".
+Why \( and not just (?
+( is a special character in RegEx (used for grouping).
+The backslash \ escapes it, so it matches a literal "(".
+g → The global flag, meaning it replaces all occurrences of "sin(", not just the first one.
+ */
