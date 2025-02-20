@@ -8,7 +8,6 @@ let isRadians = true;
 Array.from(buttons).forEach(button => {
     button.addEventListener('click', (e) => {
         let value = e.target.innerHTML;
-
         if (value === '=') {
             evaluateExpression();
         } else if (value === 'AC') {
@@ -17,7 +16,7 @@ Array.from(buttons).forEach(button => {
             deleteInput();
         } else if (['+', '-', '*', '/'].includes(value)) {
             evaluateOperator(value);
-        } else if (value === 'sin(' || value === 'cos(' || value === 'tan(') {
+        } else if (value === 'sin(' || value === 'cos(' || value === 'tan(' || value === 'ln') {
             string += value; 
             input.value = string;
             evaluated = false;
@@ -48,7 +47,12 @@ Array.from(buttons).forEach(button => {
                 input.value = result;
                 string = ""; // Clear the string after calculation
             }
-        } else {
+        }
+        else if(value == 'ln'){
+            string += value;
+            evaluateln();
+        }
+        else {
             if (evaluated) {
                 // If a number is entered after '=', start a fresh calculation
                 string = value;
@@ -66,7 +70,8 @@ function evaluateExpression() {
         let expression = string
             .replace(/sin\(/g, 'Math.sin(' + (isRadians ? '' : 'Math.PI / 180 * ')) //Math.sin() -> return answer in radians
             .replace(/cos\(/g, 'Math.cos(' + (isRadians ? '' : 'Math.PI / 180 * '))
-            .replace(/tan\(/g,'Math.tan(' + (isRadians ? '': 'Math.PI/180 *'));
+            .replace(/tan\(/g,'Math.tan(' + (isRadians ? '': 'Math.PI/180 *'))
+            .replace("ln","Math.log");
 
         string = Function('"use strict";return (' + expression + ')')(); //creates a new function dynamically
         input.value = string;
@@ -115,6 +120,15 @@ function factorial(num) {
     if (num < 0) return 0; // Factorial of negative number is not defined
     if (num === 0 || num === 1) return 1;
     return num * factorial(num - 1);
+}
+function evaluateln(){
+    let val = parseFloat(input.value);
+    if(NaN(val) || value<=0){
+        alert("Error: ln(x) is only defined for x > 0");
+        return;
+    }
+    let result = Math.log(value);
+    input.value = result;
 }
 /*
 /.../ → Defines a regular expression.
